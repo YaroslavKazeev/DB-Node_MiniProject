@@ -1,0 +1,50 @@
+name: Autograding Tests
+'on':
+  - push
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Acceptance Test - Register
+        id: acceptance-test-register
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: acceptance-test-register
+          setup-command: npm install
+          command: npx jest -t "Acceptance Test - Register"
+          timeout: 30
+          max-score: 1
+      - name: Acceptance Test - Login
+        id: acceptance-test-login
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: acceptance-test-login
+          setup-command: npm install
+          command: npx jest -t "Acceptance Test - Login"
+          timeout: 30
+          max-score: 1
+      - name: Acceptance Test - New Item
+        id: acceptance-test-new-item
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: acceptance-test-new-item
+          setup-command: npm install
+          command: npx jest -t "Acceptance Test - New Item"
+          timeout: 30
+          max-score: 1
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          ACCEPTANCE-TEST-REGISTER_RESULTS: "${{steps.acceptance-test-register.outputs.result}}"
+          ACCEPTANCE-TEST-LOGIN_RESULTS: "${{steps.acceptance-test-login.outputs.result}}"
+          ACCEPTANCE-TEST-NEW-ITEM_RESULTS: "${{steps.acceptance-test-new-item.outputs.result}}"
+        with:
+          runners: acceptance-test-register, acceptance-test-login, acceptance-test-new-item

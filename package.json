@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-exam",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --testPathIgnorePatterns '.hyf/*'",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test-acceptance": "jest --testPathPatterns='.hyf/acceptance.test.js'"
+  },
+  "keywords": [],
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.24.4",
+    "jest": "^30.0.5",
+    "supertest": "^7.0.0",
+    "nodemon": "^3.1.10"
+  }
+}
