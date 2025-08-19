@@ -35,7 +35,7 @@ export const createItem = async (req, res) => {
     const email = validateToken(req, res);
     const { title, price } = await validateItem(req);
     const itemID = crypto.randomUUID();
-    res.status(200).json({ id: itemID, title, sellerEmail: email, price });
+    res.status(201).json({ id: itemID, title, sellerEmail: email, price });
   } catch (error) {
     res
       .status(400)
