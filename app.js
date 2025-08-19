@@ -10,8 +10,6 @@ app.use("/users", usersRouter);
 app.use("/items", itemsRouter);
 app.use("/search", searchRouter);
 
-// TODO: add other routers if needed...
-
 // Handle 404 errors
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
