@@ -1,7 +1,7 @@
 import { hash, compare } from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
-const secondHandDB = {};
-const SECRET = "H6AIgu0wsGCH2mC6ypyRubiPoPSpV4t1";
+export const secondHandDB = {};
+export const SECRET = "H6AIgu0wsGCH2mC6ypyRubiPoPSpV4t1";
 const saltRounds = 12;
 
 export const addUser = async (req, res) => {
@@ -38,6 +38,7 @@ export const login = async (req, res) => {
       const isPasswordCorrect = await compare(password, hashedPassword);
       if (isPasswordCorrect) {
         const token = jsonwebtoken.sign(userID, SECRET);
+        secondHandDB[email].token = token;
         res.status(201).json({ token });
       } else {
         throw new Error("User's password is incorrect");
