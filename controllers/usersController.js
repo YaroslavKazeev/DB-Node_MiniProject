@@ -3,20 +3,16 @@ import jsonwebtoken from "jsonwebtoken";
 const secondHandDB = {};
 const SECRET = "H6AIgu0wsGCH2mC6ypyRubiPoPSpV4t1";
 const saltRounds = 12;
-
-async function checkInput_hashPassword(req, res) {
-  const { email, password } = req.body;
-  if (password.length > 7 && email.indexOf("@") > 2) {
-    const hashedPassword = await hash(password, saltRounds);
-    return { email, hashedPassword };
-  } else {
-    throw new Error("Credentials are invalid");
-  }
-}
+let hashedPassword;
 
 export const addUser = async (req, res) => {
   try {
-    const { email, hashedPassword } = await checkInput_hashPassword(req, res);
+    const { email, password } = req.body;
+    if (password.length > 7 && email.indexOf("@") > 2) {
+      hashedPassword = await hash(password, saltRounds);
+    } else {
+      throw new Error("Credentials are invalid");
+    }
     if (secondHandDB[email]) {
       throw new Error("User's email already exists in the DB");
     } else {
