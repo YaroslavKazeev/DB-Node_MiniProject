@@ -12,7 +12,7 @@ export const addUser = async (req, res) => {
       if (!secondHandDB[email]) {
         const userID = crypto.randomUUID();
         secondHandDB[email] = { userID, hashedPassword };
-        res.status(201).json({ userID, email });
+        res.status(201).json({ id: userID, email });
       } else {
         throw new Error("User's email already exists in the DB");
       }
@@ -39,15 +39,16 @@ export const login = async (req, res) => {
       if (isPasswordCorrect) {
         const token = jsonwebtoken.sign(userID, SECRET);
         secondHandDB[email].token = token;
-        res.status(201).json({ token });
+        res.status(200).json({ token });
       } else {
         throw new Error("User's password is incorrect");
       }
     }
   } catch (error) {
-    res.status(400).json({
-      error: "Error when verifying the user's email and password in the DB",
-    });
+    // res.status(500).json({
+    //   error: "Error when verifying the user's email and password in the DB",
+    // });
+    res.status(500).json({ error: "Not implemented" });
     console.log(error.message);
   }
 };
