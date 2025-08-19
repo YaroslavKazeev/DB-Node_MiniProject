@@ -3,22 +3,21 @@ import jsonwebtoken from "jsonwebtoken";
 const secondHandDB = {};
 const SECRET = "H6AIgu0wsGCH2mC6ypyRubiPoPSpV4t1";
 const saltRounds = 12;
-let hashedPassword;
 
 export const addUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (password.length > 7 && email.indexOf("@") > 2) {
-      hashedPassword = await hash(password, saltRounds);
+      const hashedPassword = await hash(password, saltRounds);
+      if (!secondHandDB[email]) {
+        const userID = crypto.randomUUID();
+        secondHandDB[email] = { userID, hashedPassword };
+        res.status(201).json({ userID, email });
+      } else {
+        throw new Error("User's email already exists in the DB");
+      }
     } else {
       throw new Error("Credentials are invalid");
-    }
-    if (secondHandDB[email]) {
-      throw new Error("User's email already exists in the DB");
-    } else {
-      const userID = crypto.randomUUID();
-      secondHandDB[email] = { userID, hashedPassword };
-      res.status(201).json({ userID, email });
     }
   } catch (error) {
     res.status(400).json({
@@ -30,5 +29,24 @@ export const addUser = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  res.status(500).json({ error: "Not implemented" });
+  try {
+    const { email, password } = req.body;
+    if (!secondHandDB[email]) {
+      throw new Error("User's email does not exists in the DB");
+    } else {
+      const { userID, hashedPassword } = secondHandDB[email];
+      const isPasswordCorrect = await compare(password, hashedPassword);
+      if (isPasswordCorrect) {
+        const token = jsonwebtoken.sign(userID, SECRET);
+        res.status(201).json({ token });
+      } else {
+        throw new Error("User's password is incorrect");
+      }
+    }
+  } catch (error) {
+    res.status(400).json({
+      error: "Error when verifying the user's email and password in the DB",
+    });
+    console.log(error.message);
+  }
 };
