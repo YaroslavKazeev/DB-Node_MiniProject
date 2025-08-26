@@ -53,6 +53,7 @@ class RAMdatabase {
       (email) => this.db[email].userID === decodedUserID
     );
     if (token === this.db[email].token) {
+      // this.db[email]["items"] = {};
       return email;
     } else {
       throw new Error("The user's token is invalid");
@@ -61,7 +62,10 @@ class RAMdatabase {
 
   addItemID(email) {
     const itemID = crypto.randomUUID();
-    this.db[email].items = { [itemID]: {} };
+    if (!this.db[email].items) {
+      this.db[email].items = {};
+    }
+    this.db[email].items[itemID] = {};
     return itemID;
   }
 
@@ -73,15 +77,12 @@ class RAMdatabase {
     }
   }
 
-  toJSON() {
-    const obj = { ...this };
-    // Remove private fields (those starting with #)
-    Object.keys(obj).forEach((key) => {
-      if (key.startsWith("#")) {
-        delete obj[key];
-      }
+  getAllItems(sellerEmail) {
+    return Object.entries(this.db[sellerEmail].items).map(([id, itemObj]) => {
+      const { title, price } = itemObj;
+      console.log(dbInRAM);
+      return { id, title, sellerEmail, price };
     });
-    return obj;
   }
 }
 
@@ -89,22 +90,3 @@ class RAMdatabase {
 const dbInRAM = new RAMdatabase();
 
 export default dbInRAM;
-
-// Add some users
-// console.log("Adding first user:");
-// console.log(await dbInRAM.addUser("123@gmail.com", 12345678));
-
-// console.log("\nAdding second user:");
-// console.log(await dbInRAM.addUser("1234@gmail.com", "abcdefgh"));
-
-// console.log("\nUpdating existing user:");
-// console.log(await dbInRAM.giveToken("123@gmail.com", 12345678));
-
-// console.log("\nGetting all users:");
-// console.log(JSON.stringify(dbInRAM.getAllUsers(), null, 2));
-// try {
-//   console.log("\nTrying invalid email:");
-//   await dbInRAM.addUser("invalid-email", 123);
-// } catch (error) {
-//   console.error(error.message);
-// }

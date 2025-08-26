@@ -26,7 +26,7 @@ export const createItem = async (req, res) => {
   } catch (error) {
     res
       .status(400)
-      .json({ message: "Either user's credentials or item info is invalid" });
+      .json({ message: "Either user's credentials or item info are invalid" });
     console.log(error.message);
   }
 };
@@ -42,13 +42,20 @@ export const updateItem = async (req, res) => {
   } catch (error) {
     res
       .status(400)
-      .json({ message: "Either user's credentials or item info is invalid" });
+      .json({ message: "Either user's credentials or item info are invalid" });
     console.log(error.message);
   }
 };
 
 export const getAllItems = async (req, res) => {
-  res.status(500).json({ error: "Not implemented" });
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const sellerEmail = dbInRAM.validateToken(token);
+    res.status(201).json(dbInRAM.getAllItems(sellerEmail));
+  } catch (error) {
+    res.status(400).json({ message: "User's credentials are invalid" });
+    console.log(error.message);
+  }
 };
 
 export const deleteItem = async (req, res) => {
