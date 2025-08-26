@@ -53,6 +53,12 @@ class RAMdatabase {
     }
   }
 
+  addItemID(email) {
+    const itemID = crypto.randomUUID();
+    this.db[email].items = { itemID: {} };
+    return itemID;
+  }
+
   // Get entire database
   getAllUsers() {
     return { ...this.db };

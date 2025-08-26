@@ -18,10 +18,10 @@ async function validateItem(req) {
 export const createItem = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const email = dbInRAM.validateToken(token);
+    const sellerEmail = dbInRAM.validateToken(token);
     const { title, price } = await validateItem(req);
-    const itemID = crypto.randomUUID();
-    res.status(201).json({ id: itemID, title, sellerEmail: email, price });
+    const id = dbInRAM.addItemID(sellerEmail);
+    res.status(201).json({ id, title, sellerEmail, price });
   } catch (error) {
     res
       .status(400)
