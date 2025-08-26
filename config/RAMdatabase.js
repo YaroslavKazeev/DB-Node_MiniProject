@@ -9,6 +9,7 @@ class RAMdatabase {
   }
 
   async addUser(email, password) {
+    password = String(password);
     if (password.length > 7 && email.indexOf("@") > 2) {
       const hashedPassword = await hash(password, saltRounds);
       if (!this.db[email]) {
@@ -24,6 +25,7 @@ class RAMdatabase {
   }
 
   async giveToken(email, password) {
+    password = String(password);
     if (this.db[email]) {
       const { id, hashedPassword } = this.db[email];
       const isPasswordCorrect = await compare(password, hashedPassword);
@@ -57,13 +59,13 @@ const dbInRAM = new RAMdatabase();
 
 // Add some users
 console.log("Adding first user:");
-console.log(await dbInRAM.addUser("123@gmail.com", "12345678"));
+console.log(await dbInRAM.addUser("123@gmail.com", 12345678));
 
 console.log("\nAdding second user:");
 console.log(await dbInRAM.addUser("1234@gmail.com", "abcdefgh"));
 
 console.log("\nUpdating existing user:");
-console.log(await dbInRAM.giveToken("123@gmail.com", "12345678"));
+console.log(await dbInRAM.giveToken("123@gmail.com", 12345678));
 
 console.log("\nGetting all users:");
 console.log(JSON.stringify(dbInRAM.getAllUsers(), null, 2));
