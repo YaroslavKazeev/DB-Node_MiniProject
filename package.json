@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --testPathIgnorePatterns '.hyf/*'",
     "start": "node index.js",
+    "test": "jest --testPathIgnorePatterns '.hyf/*'",
     "dev": "nodemon index.js",
     "test-acceptance": "jest --testPathPatterns='.hyf/acceptance.test.js'"
   },
@@ -16,8 +16,7 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "uuid": "^11.1.0"
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.24.4",
