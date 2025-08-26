@@ -1,19 +1,4 @@
-import jsonwebtoken from "jsonwebtoken";
-import { secondHandDB } from "./usersController.js";
-import { SECRET } from "./usersController.js";
-
-function validateToken(req, res) {
-  const token = req.headers.authorization.split(" ")[1];
-  const decodedUserID = jsonwebtoken.verify(token, SECRET);
-  const email = Object.keys(secondHandDB).find(
-    (email) => secondHandDB[email].userID === decodedUserID
-  );
-  if (token === secondHandDB[email].token) {
-    return email;
-  } else {
-    throw new Error("The user's token is invalid");
-  }
-}
+import { dbInRAM } from "../config/RAMdatabase.js";
 
 async function validateItem(req) {
   try {
@@ -32,7 +17,8 @@ async function validateItem(req) {
 
 export const createItem = async (req, res) => {
   try {
-    const email = validateToken(req, res);
+    const token = req.headers.authorization.split(" ")[1];
+    const email = dbInRAM.validateToken(token);
     const { title, price } = await validateItem(req);
     const itemID = crypto.randomUUID();
     res.status(201).json({ id: itemID, title, sellerEmail: email, price });

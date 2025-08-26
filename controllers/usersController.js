@@ -1,24 +1,10 @@
-import { hash, compare } from "bcrypt";
-import jsonwebtoken from "jsonwebtoken";
-export const secondHandDB = {};
-export const SECRET = "H6AIgu0wsGCH2mC6ypyRubiPoPSpV4t1";
-const saltRounds = 12;
+import { dbInRAM } from "../config/RAMdatabase.js";
 
 export const addUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (password.length > 7 && email.indexOf("@") > 2) {
-      const hashedPassword = await hash(password, saltRounds);
-      if (!secondHandDB[email]) {
-        const userID = crypto.randomUUID();
-        secondHandDB[email] = { userID, hashedPassword };
-        res.status(201).json({ id: userID, email });
-      } else {
-        throw new Error("User's email already exists in the DB");
-      }
-    } else {
-      throw new Error("Credentials are invalid");
-    }
+    const id = await dbInRAM.addUser(email, password);
+    res.status(201).json({ id, email });
   } catch (error) {
     res.status(400).json({
       error:
@@ -31,19 +17,8 @@ export const addUser = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!secondHandDB[email]) {
-      throw new Error("User's email does not exists in the DB");
-    } else {
-      const { userID, hashedPassword } = secondHandDB[email];
-      const isPasswordCorrect = await compare(password, hashedPassword);
-      if (isPasswordCorrect) {
-        const token = jsonwebtoken.sign(userID, SECRET);
-        secondHandDB[email].token = token;
-        res.status(200).json({ token });
-      } else {
-        throw new Error("User's password is incorrect");
-      }
-    }
+    const token = await dbInRAM.giveToken(email, password);
+    res.status(200).json({ token });
   } catch (error) {
     // res.status(500).json({
     //   error: "Error when verifying the user's email and password in the DB",
