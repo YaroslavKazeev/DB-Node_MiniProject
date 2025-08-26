@@ -1,4 +1,4 @@
-import { dbInRAM } from "../config/RAMdatabase.js";
+import dbInRAM from "../config/RAMdatabase.js";
 
 async function validateItem(req) {
   try {

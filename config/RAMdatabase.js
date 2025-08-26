@@ -2,16 +2,22 @@ import { hash, compare } from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
 
 class RAMdatabase {
-  #SECRET = "H6AIgu0wsGCH2mC6ypyRubiPoPSpV4t1";
-  #saltRounds = 12;
   constructor() {
     this.db = {};
+  }
+
+  #saltRounds() {
+    return 12;
+  }
+
+  #secret() {
+    return "H6AIgu0wsGCH2mC6ypyRubiPoPSpV4t1";
   }
 
   async addUser(email, password) {
     password = String(password);
     if (password.length > 7 && email.indexOf("@") > 2) {
-      const hashedPassword = await hash(password, this.#saltRounds);
+      const hashedPassword = await hash(password, this.#saltRounds());
       if (!this.db[email]) {
         const userID = crypto.randomUUID();
         this.db[email] = { userID, hashedPassword };
@@ -30,7 +36,7 @@ class RAMdatabase {
       const { userID, hashedPassword } = this.db[email];
       const isPasswordCorrect = await compare(password, hashedPassword);
       if (isPasswordCorrect) {
-        const token = jsonwebtoken.sign(userID, this.#SECRET);
+        const token = jsonwebtoken.sign(userID, this.#secret());
         this.db[email].token = token;
         return token;
       } else {
@@ -42,7 +48,7 @@ class RAMdatabase {
   }
 
   validateToken(token) {
-    const decodedUserID = jsonwebtoken.verify(token, this.#SECRET);
+    const decodedUserID = jsonwebtoken.verify(token, this.#secret());
     const email = Object.keys(this.db).find(
       (email) => this.db[email].userID === decodedUserID
     );
@@ -67,14 +73,22 @@ class RAMdatabase {
     }
   }
 
-  // Get entire database
-  getAllUsers() {
-    return { ...this.db };
+  toJSON() {
+    const obj = { ...this };
+    // Remove private fields (those starting with #)
+    Object.keys(obj).forEach((key) => {
+      if (key.startsWith("#")) {
+        delete obj[key];
+      }
+    });
+    return obj;
   }
 }
 
 // Example usage
-export const dbInRAM = new RAMdatabase();
+const dbInRAM = new RAMdatabase();
+
+export default dbInRAM;
 
 // Add some users
 // console.log("Adding first user:");
