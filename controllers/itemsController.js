@@ -21,6 +21,7 @@ export const createItem = async (req, res) => {
     const sellerEmail = dbInRAM.validateToken(token);
     const { title, price } = await validateItem(req);
     const id = dbInRAM.addItemID(sellerEmail);
+    dbInRAM.updateItem(sellerEmail, id, title, price);
     res.status(201).json({ id, title, sellerEmail, price });
   } catch (error) {
     res
@@ -31,7 +32,19 @@ export const createItem = async (req, res) => {
 };
 
 export const updateItem = async (req, res) => {
-  res.status(500).json({ error: "Not implemented" });
+  try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    const sellerEmail = dbInRAM.validateToken(token);
+    const { title, price } = await validateItem(req);
+    dbInRAM.updateItem(sellerEmail, id, title, price);
+    res.status(201).json({ id, title, sellerEmail, price });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Either user's credentials or item info is invalid" });
+    console.log(error.message);
+  }
 };
 
 export const getAllItems = async (req, res) => {

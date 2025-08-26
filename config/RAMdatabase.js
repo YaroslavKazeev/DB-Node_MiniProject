@@ -55,8 +55,16 @@ class RAMdatabase {
 
   addItemID(email) {
     const itemID = crypto.randomUUID();
-    this.db[email].items = { itemID: {} };
+    this.db[email].items = { [itemID]: {} };
     return itemID;
+  }
+
+  updateItem(email, itemID, title, price) {
+    if (this.db[email].items[itemID]) {
+      this.db[email].items[itemID] = { title, price };
+    } else {
+      throw new Error("Item's ID has not been found");
+    }
   }
 
   // Get entire database
