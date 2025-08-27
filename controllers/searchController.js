@@ -4,7 +4,10 @@ export const searchItems = async (req, res) => {
     const keyword = req.query.q;
     res.status(200).json(dbInRAM.getKeyWordItems(keyword));
   } catch (error) {
-    res.status(400).json({ message: "User's credentials are invalid" });
+    res.status(400).json({
+      error:
+        "To perform a search for the keyword q, the URL must be in the following format: http://localhost:7890/search/?q={keyword}",
+    });
     console.log(error.message);
   }
 };

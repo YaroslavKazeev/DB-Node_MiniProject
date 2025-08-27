@@ -42,7 +42,7 @@ export const updateItem = async (req, res) => {
   } catch (error) {
     res
       .status(400)
-      .json({ message: "Either user's credentials or item info are invalid" });
+      .json({ error: "Either user's credentials or item info are invalid" });
     console.log(error.message);
   }
 };
@@ -53,7 +53,7 @@ export const getAllItems = async (req, res) => {
     const sellerEmail = dbInRAM.validateToken(token);
     res.status(200).json(dbInRAM.getAllItems(sellerEmail));
   } catch (error) {
-    res.status(401).json({ message: "User's credentials are invalid" });
+    res.status(401).json({ error: "User's credentials are invalid" });
     console.log(error.message);
   }
 };
@@ -67,7 +67,7 @@ export const deleteItem = async (req, res) => {
     res.status(204).end();
   } catch (error) {
     res.status(400).json({
-      message:
+      error:
         "Either the item does not exist, or it does not belong to the logged-in user.",
     });
     console.log(error.message);
