@@ -26,7 +26,7 @@ export const createItem = async (req, res) => {
   } catch (error) {
     res
       .status(400)
-      .json({ message: "Either user's credentials or item info are invalid" });
+      .json({ error: "Either user's credentials or item info are invalid" });
     console.log(error.message);
   }
 };
@@ -38,7 +38,7 @@ export const updateItem = async (req, res) => {
     const sellerEmail = dbInRAM.validateToken(token);
     const { title, price } = await validateItem(req);
     dbInRAM.updateItem(sellerEmail, id, title, price);
-    res.status(201).json({ id, title, sellerEmail, price });
+    res.status(200).json({ id, title, sellerEmail, price });
   } catch (error) {
     res
       .status(400)
@@ -51,9 +51,9 @@ export const getAllItems = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const sellerEmail = dbInRAM.validateToken(token);
-    res.status(201).json(dbInRAM.getAllItems(sellerEmail));
+    res.status(200).json(dbInRAM.getAllItems(sellerEmail));
   } catch (error) {
-    res.status(400).json({ message: "User's credentials are invalid" });
+    res.status(401).json({ message: "User's credentials are invalid" });
     console.log(error.message);
   }
 };
@@ -64,7 +64,7 @@ export const deleteItem = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     const sellerEmail = dbInRAM.validateToken(token);
     dbInRAM.deleteItem(sellerEmail, id);
-    res.status(200).end();
+    res.status(204).end();
   } catch (error) {
     res.status(400).json({
       message:

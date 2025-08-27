@@ -20,10 +20,8 @@ export const login = async (req, res) => {
     const token = await dbInRAM.giveToken(email, password);
     res.status(200).json({ token });
   } catch (error) {
-    // res.status(500).json({
-    //   error: "Error when verifying the user's email and password in the DB",
-    // });
-    res.status(500).json({ error: "Not implemented" });
-    console.log(error.message);
+    res.status(400).json({
+      error: "Error when verifying the user's email and password in the DB",
+    });
   }
 };
