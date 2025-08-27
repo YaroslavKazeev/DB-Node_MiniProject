@@ -53,7 +53,6 @@ class RAMdatabase {
       (email) => this.db[email].userID === decodedUserID
     );
     if (token === this.db[email].token) {
-      // this.db[email]["items"] = {};
       return email;
     } else {
       throw new Error("The user's token is invalid");
@@ -87,7 +86,6 @@ class RAMdatabase {
   deleteItem(email, itemID) {
     if (this.db[email].items[itemID]) {
       delete this.db[email].items[itemID];
-      console.log(dbInRAM);
     } else {
       throw new Error("The item does not exist.");
     }
