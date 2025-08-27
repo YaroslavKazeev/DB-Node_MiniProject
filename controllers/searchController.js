@@ -1,3 +1,10 @@
+import dbInRAM from "../config/RAMdatabase.js";
 export const searchItems = async (req, res) => {
-  res.status(500).json({ error: "Not implemented" });
+  try {
+    const keyword = req.query.q;
+    res.status(201).json(dbInRAM.getKeyWordItems(keyword));
+  } catch (error) {
+    res.status(400).json({ message: "User's credentials are invalid" });
+    console.log(error.message);
+  }
 };

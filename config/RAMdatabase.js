@@ -83,6 +83,18 @@ class RAMdatabase {
     });
   }
 
+  getKeyWordItems(keyword) {
+    return [].concat(
+      ...Object.entries(this.db).map(([sellerEmail, { items }]) => {
+        return Object.entries(items)
+          .filter(([id, { title }]) =>
+            title.toLowerCase().includes(keyword.toLowerCase())
+          )
+          .map(([id, { title, price }]) => ({ id, title, sellerEmail, price }));
+      })
+    );
+  }
+
   deleteItem(email, itemID) {
     if (this.db[email].items[itemID]) {
       delete this.db[email].items[itemID];
