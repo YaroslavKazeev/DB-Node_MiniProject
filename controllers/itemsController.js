@@ -59,5 +59,17 @@ export const getAllItems = async (req, res) => {
 };
 
 export const deleteItem = async (req, res) => {
-  res.status(500).json({ error: "Not implemented" });
+  try {
+    const { id } = req.params;
+    const token = req.headers.authorization.split(" ")[1];
+    const sellerEmail = dbInRAM.validateToken(token);
+    dbInRAM.deleteItem(sellerEmail, id);
+    res.status(200).end();
+  } catch (error) {
+    res.status(400).json({
+      message:
+        "Either the item does not exist, or it does not belong to the logged-in user.",
+    });
+    console.log(error.message);
+  }
 };

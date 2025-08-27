@@ -80,9 +80,17 @@ class RAMdatabase {
   getAllItems(sellerEmail) {
     return Object.entries(this.db[sellerEmail].items).map(([id, itemObj]) => {
       const { title, price } = itemObj;
-      console.log(dbInRAM);
       return { id, title, sellerEmail, price };
     });
+  }
+
+  deleteItem(email, itemID) {
+    if (this.db[email].items[itemID]) {
+      delete this.db[email].items[itemID];
+      console.log(dbInRAM);
+    } else {
+      throw new Error("The item does not exist.");
+    }
   }
 }
 
