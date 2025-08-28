@@ -12,7 +12,10 @@ class RAMdatabase {
   async addUser(email, password) {
     password = String(password);
     if (password.length > 7 && email.indexOf("@") > 2) {
-      const hashedPassword = await hash(password, process.env.saltRounds);
+      const hashedPassword = await hash(
+        password,
+        parseInt(process.env.saltRounds)
+      );
       if (!this.db[email]) {
         const userID = crypto.randomUUID();
         this.db[email] = { userID, hashedPassword };
