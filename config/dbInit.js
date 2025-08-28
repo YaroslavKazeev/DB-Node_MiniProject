@@ -33,22 +33,30 @@ async function createDatabase(config) {
 
 async function createTables(config) {
   let client;
-  const CREATE_RECIPES_TABLE = `
-    CREATE TABLE IF NOT EXISTS RECIPES (
-    recipe_id SERIAL PRIMARY KEY,
-    recipe_name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL
+  const CREATE_USERS_TABLE = `
+    CREATE TABLE IF NOT EXISTS USERS (
+    user_id VARCHAR(36) PRIMARY KEY,
+    email VARCHAR(30) UNIQUE NOT NULL,
+    hashedPassword VARCHAR(60) NOT NULL
+)`;
+  const CREATE_ITEMS_TABLE = `
+    CREATE TABLE IF NOT EXISTS ITEMS (
+    user_id VARCHAR(36),
+    item_id VARCHAR(36) PRIMARY KEY,
+    title VARCHAR(200) UNIQUE NOT NULL,
+    price NUMERIC(7,2) NOT NULL,
+    CONSTRAINT FK_USER_ID FOREIGN KEY (user_id) REFERENCES USERS (user_id) ON DELETE CASCADE
 )`;
   try {
-    // Execute the database creation and seeding
     await createDatabase(config);
-    client = new Client(config);
 
+    client = new Client(config);
     await client.connect();
     console.log("Connected to PostgreSQL database!");
 
     // Create tables
-    await client.query(CREATE_RECIPES_TABLE);
+    await client.query(CREATE_USERS_TABLE);
+    await client.query(CREATE_ITEMS_TABLE);
 
     return { dbStatus: "online" };
   } catch (error) {

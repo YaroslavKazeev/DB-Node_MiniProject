@@ -82,6 +82,7 @@ class RAMdatabase {
   }
 
   getKeyWordItems(keyword) {
+    console.log(this.db);
     return [].concat(
       ...Object.entries(this.db).map(([sellerEmail, { items }]) => {
         return Object.entries(items)
