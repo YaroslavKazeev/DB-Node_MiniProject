@@ -1,23 +1,18 @@
 import { hash, compare } from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
+import { configDotenv } from "dotenv";
+
+configDotenv({ quiet: true });
 
 class RAMdatabase {
   constructor() {
     this.db = {};
   }
 
-  #saltRounds() {
-    return 12;
-  }
-
-  #secret() {
-    return "H6AIgu0wsGCH2mC6ypyRubiPoPSpV4t1";
-  }
-
   async addUser(email, password) {
     password = String(password);
     if (password.length > 7 && email.indexOf("@") > 2) {
-      const hashedPassword = await hash(password, this.#saltRounds());
+      const hashedPassword = await hash(password, process.env.saltRounds);
       if (!this.db[email]) {
         const userID = crypto.randomUUID();
         this.db[email] = { userID, hashedPassword };
@@ -36,7 +31,7 @@ class RAMdatabase {
       const { userID, hashedPassword } = this.db[email];
       const isPasswordCorrect = await compare(password, hashedPassword);
       if (isPasswordCorrect) {
-        const token = jsonwebtoken.sign(userID, this.#secret());
+        const token = jsonwebtoken.sign(userID, process.env.JWTsecret);
         this.db[email].token = token;
         return token;
       } else {
@@ -48,7 +43,7 @@ class RAMdatabase {
   }
 
   validateToken(token) {
-    const decodedUserID = jsonwebtoken.verify(token, this.#secret());
+    const decodedUserID = jsonwebtoken.verify(token, process.env.JWTsecret);
     const email = Object.keys(this.db).find(
       (email) => this.db[email].userID === decodedUserID
     );
