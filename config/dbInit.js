@@ -1,10 +1,12 @@
 import { Client } from "pg";
+import { configDotenv } from "dotenv";
+configDotenv({ quiet: true });
 
 // Database connection configuration
 const config = {
   host: "localhost",
-  user: "hyfuser",
-  password: "hyfpassword",
+  user: process.env.user,
+  password: process.env.password,
   database: "postgres", // Connect to default postgres database first
   port: 5432,
 };
