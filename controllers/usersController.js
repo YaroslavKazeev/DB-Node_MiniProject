@@ -1,9 +1,10 @@
-import dbInRAM from "../config/RAMdatabase.js";
+import RAMdb from "./RAMdbController.js";
+import { isTablesCreated } from "../app.js";
 
 export const addUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const id = await dbInRAM.addUser(email, password);
+    const id = await RAMdb.addUser(email, password);
     res.status(201).json({ id, email });
   } catch (error) {
     res.status(400).json({
@@ -17,7 +18,7 @@ export const addUser = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const token = await dbInRAM.giveToken(email, password);
+    const token = await RAMdb.giveToken(email, password);
     res.status(200).json({ token });
   } catch (error) {
     res.status(400).json({

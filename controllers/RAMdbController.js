@@ -104,6 +104,6 @@ class RAMdatabase {
 }
 
 // Example usage
-const dbInRAM = new RAMdatabase();
+const RAMdb = new RAMdatabase();
 
-export default dbInRAM;
+export default RAMdb;
