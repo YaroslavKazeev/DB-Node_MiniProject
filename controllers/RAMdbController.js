@@ -72,6 +72,7 @@ class RAMdatabase {
       if (result.rows.length !== 0) {
         const [{ user_id: userID, email, hashedpassword: hashedPassword }] =
           result.rows;
+        this.db[email] = { userID, hashedPassword };
         return this.validatePassword(password, hashedPassword, userID, email);
       } else {
         throw new Error("User's email does not exists in the DB");
@@ -92,19 +93,24 @@ class RAMdatabase {
       (email) => this.db[email].userID === decodedUserID
     );
     if (token === this.db[email].token) {
-      return email;
+      return { email, decodedUserID };
     } else {
       throw new Error("The user's token is invalid");
     }
   }
 
-  addItemID(email) {
+  async addItemID(email, sellerID) {
     const itemID = crypto.randomUUID();
     if (client) {
-      if (!this.db[email].items) {
-        this.db[email].items = {};
-      }
-      this.db[email].items[itemID] = {};
+      const addItemQuery = {
+        text: `
+          INSERT INTO items(item_id, user_id)
+          VALUES($1, $2)
+          ON CONFLICT (item_id) DO NOTHING
+        `,
+        values: [itemID, sellerID],
+      };
+      await client.query(addItemQuery);
       return itemID;
     } else {
       if (!this.db[email].items) {
@@ -115,10 +121,23 @@ class RAMdatabase {
     }
   }
 
-  updateItem(email, itemID, title, price) {
+  async updateItem(email, itemID, title, price) {
     if (client) {
-      if (this.db[email].items[itemID]) {
-        this.db[email].items[itemID] = { title, price };
+      const result = await client.query(
+        "SELECT item_id FROM items WHERE item_id=$1",
+        [itemID]
+      );
+      if (result.rows.length !== 0) {
+        const updateItemQuery = {
+          text: `
+          UPDATE items
+          SET title = \$1,
+              price = \$2
+          WHERE item_id = \$3
+          `,
+          values: [title, price, itemID],
+        };
+        await client.query(updateItemQuery);
       } else {
         throw new Error("Item's ID has not been found");
       }

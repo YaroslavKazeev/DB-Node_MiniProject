@@ -42,8 +42,8 @@ async function createTables() {
     CREATE TABLE IF NOT EXISTS items (
     user_id VARCHAR(36),
     item_id VARCHAR(36) UNIQUE PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    price NUMERIC(7,2) NOT NULL,
+    title VARCHAR(200),
+    price NUMERIC(7,2),
     CONSTRAINT FK_USER_ID FOREIGN KEY (user_id) REFERENCES USERS (user_id) ON DELETE CASCADE
 )`;
   try {

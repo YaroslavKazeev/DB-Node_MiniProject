@@ -3,7 +3,7 @@ import RAMdb from "./RAMdbController.js";
 export const searchItems = async (req, res) => {
   try {
     const keyword = req.query.q;
-    res.status(200).json(RAMdb.getKeyWordItems(keyword));
+    res.status(200).json(await RAMdb.getKeyWordItems(keyword));
   } catch (error) {
     res.status(400).json({
       error:

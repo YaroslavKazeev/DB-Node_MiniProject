@@ -18,16 +18,16 @@ async function validateItem(req) {
 export const createItem = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const sellerEmail = RAMdb.validateToken(token);
+    const { sellerEmail, sellerID } = RAMdb.validateToken(token);
     const { title, price } = await validateItem(req);
-    const id = RAMdb.addItemID(sellerEmail);
-    RAMdb.updateItem(sellerEmail, id, title, price);
+    const id = await RAMdb.addItemID(sellerEmail, sellerID);
+    await RAMdb.updateItem(sellerEmail, id, title, price);
     res.status(201).json({ id, title, sellerEmail, price });
   } catch (error) {
     res
       .status(400)
       .json({ error: "Either user's credentials or item info are invalid" });
-    console.log(error.message);
+    console.log(error);
   }
 };
 
@@ -35,23 +35,23 @@ export const updateItem = async (req, res) => {
   try {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
-    const sellerEmail = RAMdb.validateToken(token);
+    const { sellerEmail, sellerID } = await RAMdb.validateToken(token);
     const { title, price } = await validateItem(req);
-    RAMdb.updateItem(sellerEmail, id, title, price);
+    await RAMdb.updateItem(sellerEmail, id, title, price);
     res.status(200).json({ id, title, sellerEmail, price });
   } catch (error) {
     res
       .status(400)
       .json({ error: "Either user's credentials or item info are invalid" });
-    console.log(error.message);
+    console.log(error);
   }
 };
 
 export const getAllItems = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const sellerEmail = RAMdb.validateToken(token);
-    res.status(200).json(RAMdb.getAllItems(sellerEmail));
+    const { sellerEmail, sellerID } = RAMdb.validateToken(token);
+    res.status(200).json(await RAMdb.getAllItems(sellerEmail));
   } catch (error) {
     res.status(401).json({ error: "User's credentials are invalid" });
     console.log(error.message);
@@ -62,8 +62,8 @@ export const deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
-    const sellerEmail = RAMdb.validateToken(token);
-    RAMdb.deleteItem(sellerEmail, id);
+    const { sellerEmail, sellerID } = RAMdb.validateToken(token);
+    await RAMdb.deleteItem(sellerEmail, id);
     res.status(204).end();
   } catch (error) {
     res.status(400).json({
