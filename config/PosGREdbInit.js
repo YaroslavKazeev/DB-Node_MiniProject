@@ -33,16 +33,16 @@ async function createTables() {
     port: 5432,
   };
   const CREATE_USERS_TABLE = `
-    CREATE TABLE IF NOT EXISTS USERS (
-    user_id VARCHAR(36) PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS users (
+    user_id VARCHAR(36) UNIQUE PRIMARY KEY,
     email VARCHAR(30) UNIQUE NOT NULL,
-    hashedPassword VARCHAR(60) NOT NULL
+    hashedPassword VARCHAR(60) UNIQUE NOT NULL
 )`;
   const CREATE_ITEMS_TABLE = `
-    CREATE TABLE IF NOT EXISTS ITEMS (
+    CREATE TABLE IF NOT EXISTS items (
     user_id VARCHAR(36),
-    item_id VARCHAR(36) PRIMARY KEY,
-    title VARCHAR(200) UNIQUE NOT NULL,
+    item_id VARCHAR(36) UNIQUE PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
     price NUMERIC(7,2) NOT NULL,
     CONSTRAINT FK_USER_ID FOREIGN KEY (user_id) REFERENCES USERS (user_id) ON DELETE CASCADE
 )`;
@@ -54,8 +54,7 @@ async function createTables() {
 
     await client.query(CREATE_USERS_TABLE);
     await client.query(CREATE_ITEMS_TABLE);
-    await client.end();
-    return true;
+    return client;
   } catch (error) {
     console.error(
       "Error creating PostgreSQL database and tables, the app will continue to work in non-persistent-save mode:",

@@ -1,7 +1,7 @@
 import { hash, compare } from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
 import { configDotenv } from "dotenv";
-import { areTablesCreated } from "../app.js";
+import { client } from "../app.js";
 configDotenv({ quiet: true });
 
 class RAMdatabase {
@@ -16,10 +16,22 @@ class RAMdatabase {
         password,
         parseInt(process.env.saltRounds)
       );
-      if (areTablesCreated) {
-        if (!this.db[email]) {
+      if (client) {
+        const result = await client.query(
+          "SELECT email FROM users WHERE email=$1",
+          [email]
+        );
+        if (result.rows.length === 0) {
           const userID = crypto.randomUUID();
-          this.db[email] = { userID, hashedPassword };
+          const addUserQuery = {
+            text: `
+          INSERT INTO users(user_id, email, hashedPassword)
+          VALUES($1, $2, $3)
+          ON CONFLICT (email) DO NOTHING
+        `,
+            values: [userID, email, hashedPassword],
+          };
+          await client.query(addUserQuery);
           return userID;
         } else {
           throw new Error("User's email already exists in the DB");
@@ -40,7 +52,7 @@ class RAMdatabase {
 
   async giveToken(email, password) {
     password = String(password);
-    if (areTablesCreated) {
+    if (client) {
       if (this.db[email]) {
         const { userID, hashedPassword } = this.db[email];
         const isPasswordCorrect = await compare(password, hashedPassword);
@@ -72,7 +84,7 @@ class RAMdatabase {
   }
 
   validateToken(token) {
-    if (areTablesCreated) {
+    if (client) {
       const decodedUserID = jsonwebtoken.verify(token, process.env.JWTsecret);
       const email = Object.keys(this.db).find(
         (email) => this.db[email].userID === decodedUserID
@@ -97,7 +109,7 @@ class RAMdatabase {
 
   addItemID(email) {
     const itemID = crypto.randomUUID();
-    if (areTablesCreated) {
+    if (client) {
       if (!this.db[email].items) {
         this.db[email].items = {};
       }
@@ -113,7 +125,7 @@ class RAMdatabase {
   }
 
   updateItem(email, itemID, title, price) {
-    if (areTablesCreated) {
+    if (client) {
       if (this.db[email].items[itemID]) {
         this.db[email].items[itemID] = { title, price };
       } else {
@@ -129,7 +141,7 @@ class RAMdatabase {
   }
 
   getAllItems(sellerEmail) {
-    if (areTablesCreated) {
+    if (client) {
       return Object.entries(this.db[sellerEmail].items).map(([id, itemObj]) => {
         const { title, price } = itemObj;
         return { id, title, sellerEmail, price };
@@ -143,7 +155,7 @@ class RAMdatabase {
   }
 
   getKeyWordItems(keyword) {
-    if (areTablesCreated) {
+    if (client) {
       return [].concat(
         ...Object.entries(this.db).map(([sellerEmail, { items }]) => {
           return Object.entries(items)
@@ -177,7 +189,7 @@ class RAMdatabase {
   }
 
   deleteItem(email, itemID) {
-    if (areTablesCreated) {
+    if (client) {
       if (this.db[email].items[itemID]) {
         delete this.db[email].items[itemID];
       } else {

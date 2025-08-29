@@ -10,11 +10,11 @@ app.use(express.json());
 app.use("/users", usersRouter);
 app.use("/items", itemsRouter);
 app.use("/search", searchRouter);
-const areTablesCreated = createTables();
+const client = await createTables();
 
 // Handle 404 errors
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-export { app, areTablesCreated };
+export { app, client };
