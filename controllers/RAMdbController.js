@@ -17,11 +17,11 @@ class RAMdatabase {
         parseInt(process.env.saltRounds)
       );
       if (client) {
-        const result = await client.query(
+        const queryRes = await client.query(
           "SELECT email FROM users WHERE email=$1",
           [email]
         );
-        if (result.rows.length === 0) {
+        if (queryRes.rows.length === 0) {
           const userID = crypto.randomUUID();
           const addUserQuery = {
             text: `
@@ -65,13 +65,13 @@ class RAMdatabase {
   async giveToken(email, password) {
     password = String(password);
     if (client) {
-      const result = await client.query(
+      const queryRes = await client.query(
         "SELECT user_id, email, hashedPassword FROM users WHERE email=$1",
         [email]
       );
-      if (result.rows.length !== 0) {
+      if (queryRes.rows.length !== 0) {
         const [{ user_id: userID, email, hashedpassword: hashedPassword }] =
-          result.rows;
+          queryRes.rows;
         this.db[email] = { userID, hashedPassword };
         return this.validatePassword(password, hashedPassword, userID, email);
       } else {
@@ -89,6 +89,7 @@ class RAMdatabase {
 
   validateToken(token) {
     const decodedUserID = jsonwebtoken.verify(token, process.env.JWTsecret);
+    console.log(this.db);
     const email = Object.keys(this.db).find(
       (email) => this.db[email].userID === decodedUserID
     );
@@ -123,11 +124,11 @@ class RAMdatabase {
 
   async updateItem(email, itemID, title, price) {
     if (client) {
-      const result = await client.query(
+      const queryRes = await client.query(
         "SELECT item_id FROM items WHERE item_id=$1",
         [itemID]
       );
-      if (result.rows.length !== 0) {
+      if (queryRes.rows.length !== 0) {
         const updateItemQuery = {
           text: `
           UPDATE items
@@ -150,18 +151,26 @@ class RAMdatabase {
     }
   }
 
-  getAllItems(sellerEmail) {
+  async getAllItems(sellerEmail, sellerID) {
+    let result = [];
     if (client) {
-      return Object.entries(this.db[sellerEmail].items).map(([id, itemObj]) => {
-        const { title, price } = itemObj;
-        return { id, title, sellerEmail, price };
-      });
+      const queryRes = await client.query(
+        "SELECT item_id, title, price FROM items WHERE user_id=$1",
+        [sellerID]
+      );
+      if (queryRes.rows.length !== 0) {
+        result = queryRes.rows.map(({ item_id: id, title, price }) => ({
+          id,
+          title,
+          price,
+        }));
+      }
     } else {
-      return Object.entries(this.db[sellerEmail].items).map(([id, itemObj]) => {
-        const { title, price } = itemObj;
-        return { id, title, sellerEmail, price };
-      });
+      result = Object.entries(this.db[sellerEmail].items).map(
+        ([id, { title, price }]) => ({ id, title, sellerEmail, price })
+      );
     }
+    return result;
   }
 
   getKeyWordItems(keyword) {

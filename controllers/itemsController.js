@@ -18,7 +18,8 @@ async function validateItem(req) {
 export const createItem = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const { sellerEmail, sellerID } = RAMdb.validateToken(token);
+    const { email: sellerEmail, decodedUserID: sellerID } =
+      RAMdb.validateToken(token);
     const { title, price } = await validateItem(req);
     const id = await RAMdb.addItemID(sellerEmail, sellerID);
     await RAMdb.updateItem(sellerEmail, id, title, price);
@@ -35,7 +36,8 @@ export const updateItem = async (req, res) => {
   try {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
-    const { sellerEmail, sellerID } = await RAMdb.validateToken(token);
+    const { email: sellerEmail, decodedUserID: sellerID } =
+      await RAMdb.validateToken(token);
     const { title, price } = await validateItem(req);
     await RAMdb.updateItem(sellerEmail, id, title, price);
     res.status(200).json({ id, title, sellerEmail, price });
@@ -50,11 +52,12 @@ export const updateItem = async (req, res) => {
 export const getAllItems = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const { sellerEmail, sellerID } = RAMdb.validateToken(token);
-    res.status(200).json(await RAMdb.getAllItems(sellerEmail));
+    const { email: sellerEmail, decodedUserID: sellerID } =
+      RAMdb.validateToken(token);
+    res.status(200).json(await RAMdb.getAllItems(sellerEmail, sellerID));
   } catch (error) {
     res.status(401).json({ error: "User's credentials are invalid" });
-    console.log(error.message);
+    console.log(error);
   }
 };
 
@@ -62,7 +65,8 @@ export const deleteItem = async (req, res) => {
   try {
     const { id } = req.params;
     const token = req.headers.authorization.split(" ")[1];
-    const { sellerEmail, sellerID } = RAMdb.validateToken(token);
+    const { email: sellerEmail, decodedUserID: sellerID } =
+      RAMdb.validateToken(token);
     await RAMdb.deleteItem(sellerEmail, id);
     res.status(204).end();
   } catch (error) {
@@ -70,6 +74,6 @@ export const deleteItem = async (req, res) => {
       error:
         "Either the item does not exist, or it does not belong to the logged-in user.",
     });
-    console.log(error.message);
+    console.log(error);
   }
 };
