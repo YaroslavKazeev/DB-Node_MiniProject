@@ -1,4 +1,4 @@
-import RAMdb from "./RAMdbController.js";
+import RAMdb from "./dbController.js";
 
 export const addUser = async (req, res) => {
   try {
@@ -10,7 +10,7 @@ export const addUser = async (req, res) => {
       error:
         "Request must contain the email name (>2 chars long) and password (>7 chars long), the user's email should not repeat the same in the DB",
     });
-    console.log(error.message);
+    console.log(error);
   }
 };
 
@@ -23,6 +23,6 @@ export const login = async (req, res) => {
     res.status(400).json({
       error: "Error when verifying the user's email and password in the DB",
     });
-    console.log(error.message);
+    console.log(error);
   }
 };

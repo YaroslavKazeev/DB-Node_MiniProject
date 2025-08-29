@@ -1,4 +1,4 @@
-import RAMdb from "./RAMdbController.js";
+import RAMdb from "./dbController.js";
 
 export const searchItems = async (req, res) => {
   try {

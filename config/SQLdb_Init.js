@@ -7,10 +7,7 @@ async function createDatabase(config) {
   const client = new Client(config);
   try {
     await client.connect();
-    console.log("Connected to PostgreSQL server!");
-    // Check if database exists and create it if it does not
     await client.query(`CREATE DATABASE "${DB_NAME}"`);
-    console.log(`Created database ${DB_NAME} successfully!`);
   } catch (error) {
     if (error.code !== "42P04") {
       // 42P04 is the error code for "duplicate_database"
@@ -19,7 +16,6 @@ async function createDatabase(config) {
   }
   // Changing the config to connect to the newly created DB
   config.database = DB_NAME;
-  console.log(`Created database ${DB_NAME} successfully!`);
   await client.end();
 }
 
@@ -56,7 +52,7 @@ async function createTables() {
     await client.query(CREATE_ITEMS_TABLE);
     return client;
   } catch (error) {
-    console.error(
+    console.log(
       "Error creating PostgreSQL database and tables, the app will continue to work in non-persistent-save mode:",
       error
     );

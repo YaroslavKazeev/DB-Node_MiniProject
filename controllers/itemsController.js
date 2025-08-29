@@ -1,4 +1,4 @@
-import RAMdb from "./RAMdbController.js";
+import RAMdb from "./dbController.js";
 
 async function validateItem(req) {
   try {

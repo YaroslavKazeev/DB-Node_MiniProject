@@ -2,7 +2,7 @@ import express from "express";
 import usersRouter from "./routes/users.js";
 import itemsRouter from "./routes/items.js";
 import searchRouter from "./routes/search.js";
-import createTables from "./config/PosGREdbInit.js";
+import createTables from "./config/SQLdb_Init.js";
 
 const app = express();
 
