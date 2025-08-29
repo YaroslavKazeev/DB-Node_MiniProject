@@ -25,7 +25,7 @@ class RAMdatabase {
           const userID = crypto.randomUUID();
           const addUserQuery = {
             text: `
-          INSERT INTO users(user_id, email, hashedPassword)
+          INSERT INTO users(user_id, email, hashedpassword)
           VALUES($1, $2, $3)
           ON CONFLICT (email) DO NOTHING
         `,
