@@ -23,5 +23,6 @@ export const login = async (req, res) => {
     res.status(400).json({
       error: "Error when verifying the user's email and password in the DB",
     });
+    console.log(error.message);
   }
 };

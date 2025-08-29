@@ -53,11 +53,20 @@ class RAMdatabase {
   async giveToken(email, password) {
     password = String(password);
     if (client) {
-      if (this.db[email]) {
-        const { userID, hashedPassword } = this.db[email];
+      const result = await client.query(
+        "SELECT user_id, email, hashedPassword FROM users WHERE email=$1",
+        [email]
+      );
+      if (result.rows.length !== 0) {
+        const [{ user_id: userID, email, hashedpassword: hashedPassword }] =
+          result.rows;
         const isPasswordCorrect = await compare(password, hashedPassword);
         if (isPasswordCorrect) {
           const token = jsonwebtoken.sign(userID, process.env.JWTsecret);
+          if (!this.db[email]) {
+            this.db[email] = {};
+          }
+          this.db[email] = { userID, hashedPassword };
           this.db[email].token = token;
           return token;
         } else {
@@ -84,26 +93,14 @@ class RAMdatabase {
   }
 
   validateToken(token) {
-    if (client) {
-      const decodedUserID = jsonwebtoken.verify(token, process.env.JWTsecret);
-      const email = Object.keys(this.db).find(
-        (email) => this.db[email].userID === decodedUserID
-      );
-      if (token === this.db[email].token) {
-        return email;
-      } else {
-        throw new Error("The user's token is invalid");
-      }
+    const decodedUserID = jsonwebtoken.verify(token, process.env.JWTsecret);
+    const email = Object.keys(this.db).find(
+      (email) => this.db[email].userID === decodedUserID
+    );
+    if (token === this.db[email].token) {
+      return email;
     } else {
-      const decodedUserID = jsonwebtoken.verify(token, process.env.JWTsecret);
-      const email = Object.keys(this.db).find(
-        (email) => this.db[email].userID === decodedUserID
-      );
-      if (token === this.db[email].token) {
-        return email;
-      } else {
-        throw new Error("The user's token is invalid");
-      }
+      throw new Error("The user's token is invalid");
     }
   }
 

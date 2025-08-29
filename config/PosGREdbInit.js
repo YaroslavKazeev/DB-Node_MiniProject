@@ -36,7 +36,7 @@ async function createTables() {
     CREATE TABLE IF NOT EXISTS users (
     user_id VARCHAR(36) UNIQUE PRIMARY KEY,
     email VARCHAR(30) UNIQUE NOT NULL,
-    hashedPassword VARCHAR(60) UNIQUE NOT NULL
+    hashedpassword VARCHAR(60) UNIQUE NOT NULL
 )`;
   const CREATE_ITEMS_TABLE = `
     CREATE TABLE IF NOT EXISTS items (
