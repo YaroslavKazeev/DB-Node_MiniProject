@@ -128,7 +128,7 @@ class RAMdatabase {
         [itemID]
       );
       if (queryRes.rows.length !== 0) {
-        const updateItemQuery = {
+        const deleteItemQuery = {
           text: `
           UPDATE items
           SET title = \$1, price = \$2
@@ -136,7 +136,7 @@ class RAMdatabase {
           `,
           values: [title, price, itemID],
         };
-        await client.query(updateItemQuery);
+        await client.query(deleteItemQuery);
       } else {
         throw new Error("Item's ID has not been found");
       }
@@ -212,10 +212,21 @@ class RAMdatabase {
     return result;
   }
 
-  deleteItem(email, itemID) {
+  async deleteItem(email, itemID) {
     if (client) {
-      if (this.db[email].items[itemID]) {
-        delete this.db[email].items[itemID];
+      const queryRes = await client.query(
+        "SELECT item_id FROM items WHERE item_id=$1",
+        [itemID]
+      );
+      if (queryRes.rows.length !== 0) {
+        const deleteItemQuery = {
+          text: `
+          DELETE FROM items
+          WHERE item_id = \$1
+          `,
+          values: [itemID],
+        };
+        await client.query(deleteItemQuery);
       } else {
         throw new Error("The item does not exist.");
       }
