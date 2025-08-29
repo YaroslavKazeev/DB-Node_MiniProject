@@ -89,7 +89,6 @@ class RAMdatabase {
 
   validateToken(token) {
     const decodedUserID = jsonwebtoken.verify(token, process.env.JWTsecret);
-    console.log(this.db);
     const email = Object.keys(this.db).find(
       (email) => this.db[email].userID === decodedUserID
     );
@@ -132,8 +131,7 @@ class RAMdatabase {
         const updateItemQuery = {
           text: `
           UPDATE items
-          SET title = \$1,
-              price = \$2
+          SET title = \$1, price = \$2
           WHERE item_id = \$3
           `,
           values: [title, price, itemID],
@@ -162,6 +160,7 @@ class RAMdatabase {
         result = queryRes.rows.map(({ item_id: id, title, price }) => ({
           id,
           title,
+          sellerEmail,
           price,
         }));
       }
@@ -173,24 +172,29 @@ class RAMdatabase {
     return result;
   }
 
-  getKeyWordItems(keyword) {
+  async getKeyWordItems(keyword) {
+    let result = [];
     if (client) {
-      return [].concat(
-        ...Object.entries(this.db).map(([sellerEmail, { items }]) => {
-          return Object.entries(items)
-            .filter(([id, { title }]) =>
-              title.toLowerCase().includes(keyword.toLowerCase())
-            )
-            .map(([id, { title, price }]) => ({
-              id,
-              title,
-              sellerEmail,
-              price,
-            }));
-        })
-      );
+      const selectKeywordItems = {
+        text: `
+          SELECT i.item_id, i.title, u.email, i.price
+          FROM items i
+          JOIN users u ON u.user_id = i.user_id
+          WHERE LOWER(i.title) LIKE $1
+      `,
+        values: [`%${keyword.toLowerCase()}%`],
+      };
+      const queryRes = await client.query(selectKeywordItems);
+      if (queryRes.rows.length !== 0) {
+        result = queryRes.rows.map(({ item_id: id, title, email, price }) => ({
+          id,
+          title,
+          sellerEmail: email,
+          price,
+        }));
+      }
     } else {
-      return [].concat(
+      result = [].concat(
         ...Object.entries(this.db).map(([sellerEmail, { items }]) => {
           return Object.entries(items)
             .filter(([id, { title }]) =>
@@ -205,6 +209,7 @@ class RAMdatabase {
         })
       );
     }
+    return result;
   }
 
   deleteItem(email, itemID) {

@@ -9,6 +9,6 @@ export const searchItems = async (req, res) => {
       error:
         "To perform a search for the keyword q, the URL must be in the following format: http://localhost:7890/search/?q={keyword}",
     });
-    console.log(error.message);
+    console.log(error);
   }
 };
