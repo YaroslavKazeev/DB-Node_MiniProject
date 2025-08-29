@@ -1,5 +1,4 @@
 import RAMdb from "./RAMdbController.js";
-import { isTablesCreated } from "../app.js";
 
 export const searchItems = async (req, res) => {
   try {

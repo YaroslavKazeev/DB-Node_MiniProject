@@ -1,5 +1,4 @@
 import RAMdb from "./RAMdbController.js";
-import { isTablesCreated } from "../app.js";
 
 async function validateItem(req) {
   try {
