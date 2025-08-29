@@ -46,7 +46,6 @@ async function createTables() {
     await createDatabase(config);
     const client = new Client(config);
     await client.connect();
-    console.log("Connected to PostgreSQL database!");
 
     await client.query(CREATE_USERS_TABLE);
     await client.query(CREATE_ITEMS_TABLE);
